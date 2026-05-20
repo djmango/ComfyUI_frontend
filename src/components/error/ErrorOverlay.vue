@@ -75,16 +75,14 @@ import { storeToRefs } from 'pinia'
 
 import Button from '@/components/ui/button/Button.vue'
 import { useExecutionErrorStore } from '@/stores/executionErrorStore'
-import { useRightSidePanelStore } from '@/stores/workspace/rightSidePanelStore'
-import { useCanvasStore } from '@/renderer/core/canvas/canvasStore'
 import { useErrorGroups } from '@/components/rightSidePanel/errors/useErrorGroups'
+import { useViewErrorsInGraph } from '@/components/error/useViewErrorsInGraph'
 
 defineProps<{ appMode?: boolean }>()
 
 const { t } = useI18n()
 const executionErrorStore = useExecutionErrorStore()
-const rightSidePanelStore = useRightSidePanelStore()
-const canvasStore = useCanvasStore()
+const { viewErrorsInGraph } = useViewErrorsInGraph()
 
 const { totalErrorCount, isErrorOverlayOpen } = storeToRefs(executionErrorStore)
 const { allErrorGroups } = useErrorGroups(ref(''))
@@ -142,13 +140,6 @@ function dismiss() {
 }
 
 function seeErrors() {
-  canvasStore.linearMode = false
-  if (canvasStore.canvas) {
-    canvasStore.canvas.deselectAll()
-    canvasStore.updateSelectedItems()
-  }
-
-  rightSidePanelStore.openPanel('errors')
-  executionErrorStore.dismissErrorOverlay()
+  viewErrorsInGraph()
 }
 </script>
