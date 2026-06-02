@@ -24,7 +24,12 @@
               e.preventDefault()
           "
           @pointer-down-outside="
-            (e) => onRekaPointerDownOutside(item.dialogComponentProps, e)
+            (e) =>
+              onRekaPointerDownOutside(
+                item.dialogComponentProps,
+                e,
+                dialogStore.activeKey === item.key
+              )
           "
           @focus-outside="onRekaFocusOutside"
           @mousedown="() => dialogStore.riseDialog({ key: item.key })"

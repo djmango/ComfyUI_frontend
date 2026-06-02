@@ -318,6 +318,22 @@ describe('shouldPreventRekaDismiss', () => {
     expect(event.defaultPrevented).toBe(false)
   })
 
+  it('prevents dismiss when the dialog is not the top-most (stacked)', () => {
+    // A backgrounded dialog must never dismiss on an outside pointer — the
+    // pointer belongs to the dialog stacked above it (e.g. Edit Keybinding
+    // opening over Settings). Target is outside any overlay, so only the
+    // is-active gate can prevent it.
+    const event = makeEvent(document.body)
+    onRekaPointerDownOutside({ dismissableMask: undefined }, event, false)
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('allows the top-most dialog to dismiss on a true outside pointer', () => {
+    const event = makeEvent(document.body)
+    onRekaPointerDownOutside({ dismissableMask: undefined }, event, true)
+    expect(event.defaultPrevented).toBe(false)
+  })
+
   it('prevents dismiss when dismissableMask is false even outside an overlay', () => {
     const event = makeEvent(document.body)
     onRekaPointerDownOutside({ dismissableMask: false }, event)
