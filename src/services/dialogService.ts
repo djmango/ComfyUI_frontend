@@ -113,7 +113,6 @@ export const useDialogService = () => {
       component: ErrorDialogContent,
       props,
       dialogComponentProps: {
-        renderer: 'reka',
         size: 'lg',
         onClose: () => {
           useTelemetry()?.trackUiButtonClicked({
@@ -179,7 +178,6 @@ export const useDialogService = () => {
       component: ErrorDialogContent,
       props,
       dialogComponentProps: {
-        renderer: 'reka',
         size: 'lg',
         onClose: () => {
           useTelemetry()?.trackUiButtonClicked({
@@ -211,7 +209,6 @@ export const useDialogService = () => {
         },
         headerComponent: ComfyOrgHeader,
         dialogComponentProps: {
-          renderer: 'reka',
           contentClass: HUG_CONTENT_CLASS,
           closable: false,
           onClose: () => resolve(false)
@@ -236,7 +233,6 @@ export const useDialogService = () => {
           onSuccess: () => resolve(true)
         },
         dialogComponentProps: {
-          renderer: 'reka',
           // SignInContent is a fixed w-96 — size 'sm' (max-w-sm) leaves only
           // 352px after the body padding; hug the intrinsic width instead.
           contentClass: HUG_CONTENT_CLASS,
@@ -275,7 +271,6 @@ export const useDialogService = () => {
           placeholder
         },
         dialogComponentProps: {
-          renderer: 'reka',
           size: 'md',
           onClose: () => {
             resolve(null)
@@ -312,7 +307,6 @@ export const useDialogService = () => {
           denyLabel
         },
         dialogComponentProps: {
-          renderer: 'reka',
           size: 'md',
           onClose: () => resolve(null)
         }
@@ -345,7 +339,6 @@ export const useDialogService = () => {
       component,
       props: options,
       dialogComponentProps: {
-        renderer: 'reka',
         headless: true,
         contentClass: SELF_STYLED_PANEL_CONTENT_CLASS
       }
@@ -368,7 +361,6 @@ export const useDialogService = () => {
           dialogStore.closeDialog({ key: 'global-update-password' })
       },
       dialogComponentProps: {
-        renderer: 'reka',
         contentClass: HUG_CONTENT_CLASS
       }
     })
@@ -399,7 +391,6 @@ export const useDialogService = () => {
     dialogComponentProps?: DialogComponentProps
   }) {
     const layoutDefaultProps: DialogComponentProps = {
-      renderer: 'reka',
       headless: true,
       modal: true,
       closable: true
@@ -424,7 +415,6 @@ export const useDialogService = () => {
     return dialogStore.showDialog({
       ...rest,
       dialogComponentProps: {
-        renderer: 'reka',
         closable: true,
         // Contents bring their own width and separators — shrink-wrap the
         // chrome and zero the section padding.
@@ -453,7 +443,6 @@ export const useDialogService = () => {
 
   // Workspace dialogs - dynamically imported to avoid bundling when feature flag is off
   const workspaceDialogProps = {
-    renderer: 'reka',
     headless: true,
     contentClass: SELF_STYLED_PANEL_CONTENT_CLASS
   } as const
@@ -585,7 +574,6 @@ export const useDialogService = () => {
         onConfirm: () => {}
       },
       dialogComponentProps: {
-        renderer: 'reka',
         size: 'sm',
         contentClass: 'max-w-[360px]'
       }
