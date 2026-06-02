@@ -19,6 +19,12 @@ const filterSelected = defineModel<string>('filterSelected')
 const { isUploadButtonEnabled, showUploadDialog } = useModelUpload()
 
 const singleFilterOption = computed(() => filterOptions.length === 1)
+
+const uploadButtonStyle = cn(
+  'ml-auto h-8 rounded-lg bg-base-foreground text-base-background',
+  'flex items-center justify-center gap-2 p-2',
+  'transition-all duration-150 hover:bg-base-foreground/90 active:scale-95'
+)
 </script>
 
 <template>
@@ -44,9 +50,9 @@ const singleFilterOption = computed(() => filterOptions.length === 1)
     </button>
     <Button
       v-if="isUploadButtonEnabled && singleFilterOption"
-      class="ml-auto"
-      size="md"
       variant="textonly"
+      size="md"
+      :class="uploadButtonStyle"
       @click="showUploadDialog"
     >
       <i class="icon-[lucide--folder-input]" />
@@ -57,12 +63,7 @@ const singleFilterOption = computed(() => filterOptions.length === 1)
       :title="$t('g.upload')"
       variant="textonly"
       size="md"
-      :class="
-        cn(
-          'ml-auto h-8 rounded-lg bg-zinc-500/20 outline-1 -outline-offset-1 outline-node-component-border transition-all duration-150',
-          'relative flex items-center justify-center gap-2 p-2 hover:outline-component-node-widget-background-highlighted active:scale-95'
-        )
-      "
+      :class="uploadButtonStyle"
       @click="emit('show-picker')"
     >
       <i class="icon-[lucide--folder-search] size-4" />
