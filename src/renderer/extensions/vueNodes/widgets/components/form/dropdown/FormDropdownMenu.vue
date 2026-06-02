@@ -126,6 +126,8 @@ const onWheel = (event: WheelEvent) => {
       v-if="filterOptions.length > 0"
       v-model:filter-selected="filterSelected"
       :filter-options
+      :uploadable
+      @show-picker="emit('show-picker')"
     />
     <FormDropdownMenuActions
       v-model:layout-mode="layoutMode"
@@ -139,9 +141,7 @@ const onWheel = (event: WheelEvent) => {
       :show-base-model-filter
       :base-model-options
       :candidate-label
-      :uploadable
       @search-enter="emit('search-enter')"
-      @show-picker="emit('show-picker')"
     />
     <div
       v-if="items.length === 0"

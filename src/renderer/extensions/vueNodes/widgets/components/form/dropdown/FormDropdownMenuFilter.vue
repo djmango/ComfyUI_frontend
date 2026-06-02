@@ -8,6 +8,10 @@ import { cn } from '@comfyorg/tailwind-utils'
 
 const { filterOptions } = defineProps<{
   filterOptions: FilterOption[]
+  uploadable: boolean
+}>()
+const emit = defineEmits<{
+  (e: 'show-picker'): void
 }>()
 
 const filterSelected = defineModel<string>('filterSelected')
@@ -47,6 +51,23 @@ const singleFilterOption = computed(() => filterOptions.length === 1)
     >
       <i class="icon-[lucide--folder-input]" />
       <span>{{ $t('g.import') }}</span>
+    </Button>
+    <Button
+      v-else-if="uploadable"
+      :aria-label="$t('g.upload')"
+      :title="$t('g.upload')"
+      variant="textonly"
+      size="md"
+      :class="
+        cn(
+          'ml-auto h-8 rounded-lg bg-zinc-500/20 outline-1 -outline-offset-1 outline-node-component-border transition-all duration-150',
+          'relative flex items-center justify-center gap-2 p-2 hover:outline-component-node-widget-background-highlighted active:scale-95'
+        )
+      "
+      @click="emit('show-picker')"
+    >
+      <i class="icon-[lucide--folder-search] size-4" />
+      <span>{{ $t('g.upload') }}</span>
     </Button>
   </div>
 </template>

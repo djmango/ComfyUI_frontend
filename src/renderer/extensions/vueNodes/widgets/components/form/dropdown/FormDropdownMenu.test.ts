@@ -136,44 +136,52 @@ describe('FormDropdownMenu', () => {
   /** Stub that surfaces `uploadable` as a data attribute and exposes a button
    *  that emits `show-picker`, so the parent's prop-forwarding and event
    *  re-emission can be asserted from the DOM. */
-  const FormDropdownMenuActionsStub = {
-    name: 'FormDropdownMenuActions',
-    props: ['uploadable'],
-    emits: ['show-picker', 'search-enter'],
+  const FormDropdownMenuFilterStub = {
+    name: 'FormDropdownMenuFilter',
+    props: ['uploadable', 'filterOptions'],
+    emits: ['show-picker'],
     template:
-      '<button data-testid="actions-stub" :data-uploadable="String(uploadable)" @click="$emit(\'show-picker\')" />'
+      '<button data-testid="filter-stub" :data-uploadable="String(uploadable)" @click="$emit(\'show-picker\')" />'
   }
 
-  it('forwards uploadable prop to FormDropdownMenuActions', () => {
+  it('forwards uploadable prop to FormDropdownMenuFilter', () => {
     render(FormDropdownMenu, {
-      props: { ...defaultProps, uploadable: true },
+      props: {
+        ...defaultProps,
+        uploadable: true,
+        filterOptions: [{ name: 'All', value: 'all' }]
+      },
       global: {
         stubs: {
-          FormDropdownMenuFilter: true,
-          FormDropdownMenuActions: FormDropdownMenuActionsStub,
+          FormDropdownMenuFilter: FormDropdownMenuFilterStub,
+          FormDropdownMenuActions: true,
           VirtualGrid: VirtualGridStub
         },
         mocks: { $t: (key: string) => key }
       }
     })
 
-    expect(screen.getByTestId('actions-stub').dataset.uploadable).toBe('true')
+    expect(screen.getByTestId('filter-stub').dataset.uploadable).toBe('true')
   })
 
-  it('re-emits show-picker when FormDropdownMenuActions emits it', async () => {
+  it('re-emits show-picker when FormDropdownMenuFilter emits it', async () => {
     const { emitted } = render(FormDropdownMenu, {
-      props: { ...defaultProps, uploadable: true },
+      props: {
+        ...defaultProps,
+        uploadable: true,
+        filterOptions: [{ name: 'All', value: 'all' }]
+      },
       global: {
         stubs: {
-          FormDropdownMenuFilter: true,
-          FormDropdownMenuActions: FormDropdownMenuActionsStub,
+          FormDropdownMenuFilter: FormDropdownMenuFilterStub,
+          FormDropdownMenuActions: true,
           VirtualGrid: VirtualGridStub
         },
         mocks: { $t: (key: string) => key }
       }
     })
 
-    await userEvent.click(screen.getByTestId('actions-stub'))
+    await userEvent.click(screen.getByTestId('filter-stub'))
     expect(emitted('show-picker')).toHaveLength(1)
   })
 
