@@ -18,6 +18,7 @@
           :maximized="!!item.dialogComponentProps.maximized"
           :class="item.dialogComponentProps.contentClass"
           :aria-labelledby="item.key"
+          @open-auto-focus="(e) => onRekaOpenAutoFocus(e, item.key)"
           @escape-key-down="
             (e) =>
               item.dialogComponentProps.closeOnEscape === false &&
@@ -151,6 +152,22 @@ function isRekaItem(item: DialogInstance) {
 
 function onRekaOpenChange(key: string, open: boolean) {
   if (!open) dialogStore.closeDialog({ key })
+}
+
+// Reka's FocusScope focuses the first tabbable element on open (often a header
+// or footer button). Dialog content that marks an input with `autofocus` (e.g.
+// the keybinding capture input, the prompt input) relied on PrimeVue honoring
+// that attribute, so honor it here: focus the autofocus target and cancel
+// Reka's default auto-focus when one is present.
+function onRekaOpenAutoFocus(event: Event, key: string) {
+  const content = document.querySelector<HTMLElement>(
+    `[aria-labelledby="${CSS.escape(key)}"]`
+  )
+  const autofocusEl = content?.querySelector<HTMLElement>('[autofocus]')
+  if (autofocusEl) {
+    event.preventDefault()
+    autofocusEl.focus()
+  }
 }
 
 function toggleMaximize(item: DialogInstance) {
