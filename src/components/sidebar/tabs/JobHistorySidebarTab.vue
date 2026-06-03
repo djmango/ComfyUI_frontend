@@ -191,8 +191,7 @@ const onViewItem = wrapWithErrorHandlingAsync(async (item: JobListItem) => {
       dialogComponentProps: {
         renderer: 'reka',
         size: 'full',
-        contentClass:
-          'w-[80vw] max-w-[80vw] sm:max-w-[80vw] h-[80vh] max-h-[80vh]',
+        contentClass: 'w-[80vw] h-[80vh] max-h-[80vh]',
         maximizable: true
       }
     })

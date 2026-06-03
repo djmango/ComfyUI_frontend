@@ -11,7 +11,7 @@ import { useDialogStore } from '@/stores/dialogStore'
 // zero the section padding (the PrimeVue `pt` overrides this replaces).
 const uploadDialogComponentProps = {
   renderer: 'reka',
-  contentClass: 'w-fit max-w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-1rem)]',
+  contentClass: 'w-fit max-w-[calc(100vw-1rem)]',
   headerClass: 'py-0 pl-0',
   bodyClass: 'p-0 overflow-y-hidden'
 } as const

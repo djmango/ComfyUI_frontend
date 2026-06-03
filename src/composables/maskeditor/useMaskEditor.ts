@@ -27,8 +27,7 @@ export function useMaskEditor() {
         size: 'full',
         // `mask-editor-dialog` is a styling-free hook class consumed by
         // browser_tests (MaskEditorHelper, maskEditor.spec).
-        contentClass:
-          'mask-editor-dialog w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh]',
+        contentClass: 'mask-editor-dialog w-[90vw] h-[90vh] max-h-[90vh]',
         headerClass: 'p-2',
         bodyClass: 'flex min-h-0 flex-col p-0',
         modal: true,
