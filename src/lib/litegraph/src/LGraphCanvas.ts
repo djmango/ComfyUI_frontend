@@ -112,6 +112,7 @@ import type { NeverNever, PickNevers } from './types/utility'
 import type { IBaseWidget, TWidgetValue } from './types/widgets'
 import { alignNodes, distributeNodes, getBoundaryNodes } from './utils/arrange'
 import { findFirstNode, getAllNestedItems } from './utils/collections'
+import { isNumericNodeId, nodeIdToNumber } from './utils/nodeId'
 import { resolveConnectingLinkColor } from './utils/linkColors'
 import { createUuidv4 } from '@/utils/uuid'
 import { BaseWidget } from './widgets/BaseWidget'
@@ -9108,17 +9109,18 @@ export function remapClipboardSubgraphNodeIds(
 ): void {
   const usedNodeIds = new Set<number>()
   forEachNode(rootGraph, (node) => {
-    if (typeof node.id !== 'number') return
-    usedNodeIds.add(node.id)
-    if (rootGraph.state.lastNodeId < node.id)
-      rootGraph.state.lastNodeId = node.id
+    if (!isNumericNodeId(node.id)) return
+    const numericId = nodeIdToNumber(node.id)
+    usedNodeIds.add(numericId)
+    if (rootGraph.state.lastNodeId < numericId)
+      rootGraph.state.lastNodeId = numericId
   })
 
-  function nextUniqueNodeId() {
+  function nextUniqueNodeId(): NodeId {
     while (usedNodeIds.has(++rootGraph.state.lastNodeId));
     const nextId = rootGraph.state.lastNodeId
     usedNodeIds.add(nextId)
-    return nextId
+    return String(nextId)
   }
 
   const subgraphNodeIdMap = new Map<SubgraphId, Map<NodeId, NodeId>>()
@@ -9127,9 +9129,10 @@ export function remapClipboardSubgraphNodeIds(
     const interiorNodes = subgraphInfo.nodes ?? []
 
     for (const nodeInfo of interiorNodes) {
-      if (typeof nodeInfo.id !== 'number') continue
+      if (!isNumericNodeId(nodeInfo.id)) continue
 
-      if (usedNodeIds.has(nodeInfo.id)) {
+      const numericId = nodeIdToNumber(nodeInfo.id)
+      if (usedNodeIds.has(numericId)) {
         const oldId = nodeInfo.id
         const newId = nextUniqueNodeId()
         remappedIds.set(oldId, newId)
@@ -9137,9 +9140,9 @@ export function remapClipboardSubgraphNodeIds(
         continue
       }
 
-      usedNodeIds.add(nodeInfo.id)
-      if (rootGraph.state.lastNodeId < nodeInfo.id)
-        rootGraph.state.lastNodeId = nodeInfo.id
+      usedNodeIds.add(numericId)
+      if (rootGraph.state.lastNodeId < numericId)
+        rootGraph.state.lastNodeId = numericId
     }
 
     if (remappedIds.size > 0) {
