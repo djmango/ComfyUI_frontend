@@ -4,6 +4,7 @@ import { ref } from 'vue'
 
 import type { LGraphNode, SubgraphNode } from '@/lib/litegraph/src/litegraph'
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
+import { asNodeId } from '@/lib/litegraph/src/utils/nodeId'
 import { useWorkflowStore } from '@/platform/workflow/management/stores/workflowStore'
 import type {
   ExecutedWsMessage,
@@ -275,7 +276,10 @@ export const useNodeOutputStore = defineStore('nodeOutput', () => {
     nodeId: string | number,
     previewImages: string[]
   ) {
-    setNodePreviewsByLocatorId(nodeIdToNodeLocatorId(nodeId), previewImages)
+    setNodePreviewsByLocatorId(
+      nodeIdToNodeLocatorId(asNodeId(nodeId)),
+      previewImages
+    )
   }
 
   function revokePreviewsByExecutionId(executionId: string) {
@@ -342,7 +346,7 @@ export const useNodeOutputStore = defineStore('nodeOutput', () => {
   }
 
   function removeNodeOutputs(nodeId: number | string) {
-    const nodeLocatorId = nodeIdToNodeLocatorId(Number(nodeId))
+    const nodeLocatorId = nodeIdToNodeLocatorId(asNodeId(Number(nodeId)))
     if (!nodeLocatorId) return false
     return removeOutputsByLocatorId(nodeLocatorId)
   }
@@ -405,7 +409,7 @@ export const useNodeOutputStore = defineStore('nodeOutput', () => {
   ) {
     if (!LiteGraph.vueNodesMode) return
 
-    const node = resolveNode(Number(nodeId))
+    const node = resolveNode(asNodeId(Number(nodeId)))
     if (!node) return
 
     node.imgs = [element]

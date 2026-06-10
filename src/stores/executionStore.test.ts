@@ -1,6 +1,7 @@
 import { setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { asNodeId } from '@/lib/litegraph/src/litegraph'
 import { app } from '@/scripts/app'
 import { MAX_PROGRESS_JOBS, useExecutionStore } from '@/stores/executionStore'
 import { useExecutionErrorStore } from '@/stores/executionErrorStore'
@@ -225,12 +226,12 @@ describe('useExecutionStore - nodeLocationProgressStates caching', () => {
 
     store.nodeProgressStates = {
       node1: {
-        display_node_id: '123:456',
+        display_node_id: asNodeId('123:456'),
         state: 'running',
         value: 50,
         max: 100,
         prompt_id: 'test',
-        node_id: 'node1'
+        node_id: asNodeId('node1')
       }
     }
 
@@ -254,12 +255,12 @@ describe('useExecutionStore - nodeLocationProgressStates caching', () => {
 
     store.nodeProgressStates = {
       node1: {
-        display_node_id: '123:456',
+        display_node_id: asNodeId('123:456'),
         state: 'running',
         value: 50,
         max: 100,
         prompt_id: 'test',
-        node_id: 'node1'
+        node_id: asNodeId('node1')
       }
     }
 
@@ -271,12 +272,12 @@ describe('useExecutionStore - nodeLocationProgressStates caching', () => {
     // Second update with same execution IDs but different progress
     store.nodeProgressStates = {
       node1: {
-        display_node_id: '123:456',
+        display_node_id: asNodeId('123:456'),
         state: 'running',
         value: 75,
         max: 100,
         prompt_id: 'test',
-        node_id: 'node1'
+        node_id: asNodeId('node1')
       }
     }
 
@@ -303,20 +304,20 @@ describe('useExecutionStore - nodeLocationProgressStates caching', () => {
     // Two sibling nodes in the same subgraph
     store.nodeProgressStates = {
       node1: {
-        display_node_id: '123:456',
+        display_node_id: asNodeId('123:456'),
         state: 'running',
         value: 50,
         max: 100,
         prompt_id: 'test',
-        node_id: 'node1'
+        node_id: asNodeId('node1')
       },
       node2: {
-        display_node_id: '123:789',
+        display_node_id: asNodeId('123:789'),
         state: 'running',
         value: 30,
         max: 100,
         prompt_id: 'test',
-        node_id: 'node2'
+        node_id: asNodeId('node2')
       }
     }
 
@@ -344,9 +345,9 @@ describe('useExecutionStore - nodeProgressStatesByJob eviction', () => {
         value: 5,
         max: 10,
         state: 'running',
-        node_id: nodeId,
+        node_id: asNodeId(nodeId),
         prompt_id: jobId,
-        display_node_id: nodeId
+        display_node_id: asNodeId(nodeId)
       }
     }
   }
@@ -471,14 +472,16 @@ describe('useExecutionStore - clearActiveJobIfStale', () => {
 
   it('clears the active job and progress state when not in the active set', () => {
     store.activeJobId = 'job-1'
-    store.queuedJobs = { 'job-1': { nodes: { 'node-1': false } } }
+    store.queuedJobs = {
+      [asNodeId('job-1')]: { nodes: { [asNodeId('node-1')]: false } }
+    }
     store.nodeProgressStates = {
-      'node-1': {
+      [asNodeId('node-1')]: {
         value: 5,
         max: 10,
         state: 'running',
-        node_id: 'node-1',
-        display_node_id: 'node-1',
+        node_id: asNodeId('node-1'),
+        display_node_id: asNodeId('node-1'),
         prompt_id: 'job-1'
       }
     }
@@ -486,28 +489,28 @@ describe('useExecutionStore - clearActiveJobIfStale', () => {
     store.clearActiveJobIfStale(new Set(['job-2']))
 
     expect(store.activeJobId).toBeNull()
-    expect(store.queuedJobs['job-1']).toBeUndefined()
+    expect(store.queuedJobs[asNodeId('job-1')]).toBeUndefined()
     expect(store.nodeProgressStates).toEqual({})
   })
 
   it('preserves the active job when present in the active set', () => {
     store.activeJobId = 'job-1'
-    store.queuedJobs = { 'job-1': { nodes: {} } }
+    store.queuedJobs = { [asNodeId('job-1')]: { nodes: {} } }
 
     store.clearActiveJobIfStale(new Set(['job-1', 'job-2']))
 
     expect(store.activeJobId).toBe('job-1')
-    expect(store.queuedJobs['job-1']).toBeDefined()
+    expect(store.queuedJobs[asNodeId('job-1')]).toBeDefined()
   })
 
   it('is a no-op when there is no active job', () => {
     store.activeJobId = null
-    store.queuedJobs = { other: { nodes: {} } }
+    store.queuedJobs = { [asNodeId('other')]: { nodes: {} } }
 
     store.clearActiveJobIfStale(new Set())
 
     expect(store.activeJobId).toBeNull()
-    expect(store.queuedJobs['other']).toBeDefined()
+    expect(store.queuedJobs[asNodeId('other')]).toBeDefined()
   })
 })
 
@@ -578,7 +581,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
 
     it('should return node error by locator ID for root graph node', () => {
       store.lastNodeErrors = {
-        '123': {
+        [asNodeId('123')]: {
           errors: [
             {
               type: 'validation_error',
@@ -615,7 +618,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
       vi.mocked(app.rootGraph.getNodeById).mockReturnValue(mockNode)
 
       store.lastNodeErrors = {
-        '123:456': {
+        [asNodeId('123:456')]: {
           errors: [
             {
               type: 'validation_error',
@@ -644,7 +647,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
 
     it('should return false when node has errors but slot is not mentioned', () => {
       store.lastNodeErrors = {
-        '123': {
+        [asNodeId('123')]: {
           errors: [
             {
               type: 'validation_error',
@@ -664,7 +667,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
 
     it('should return true when slot has error', () => {
       store.lastNodeErrors = {
-        '123': {
+        [asNodeId('123')]: {
           errors: [
             {
               type: 'validation_error',
@@ -684,7 +687,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
 
     it('should return true when multiple errors exist for the same slot', () => {
       store.lastNodeErrors = {
-        '123': {
+        [asNodeId('123')]: {
           errors: [
             {
               type: 'validation_error',
@@ -710,7 +713,7 @@ describe('useExecutionErrorStore - Node Error Lookups', () => {
 
     it('should handle errors without extra_info', () => {
       store.lastNodeErrors = {
-        '123': {
+        [asNodeId('123')]: {
           errors: [
             {
               type: 'validation_error',
@@ -743,20 +746,20 @@ describe('useExecutionStore - executingNode with subgraphs', () => {
       id: 'test-prompt',
       nodes: ['123'],
       promptOutput: {
-        '123': createPromptNode('Test Node', 'TestNode')
+        [asNodeId('123')]: createPromptNode('Test Node', 'TestNode')
       },
       workflow: createQueuedWorkflow()
     })
     store.activeJobId = 'test-prompt'
 
     store.nodeProgressStates = {
-      '123': {
+      [asNodeId('123')]: {
         state: 'running',
         value: 0,
         max: 100,
-        display_node_id: '123',
+        display_node_id: asNodeId('123'),
         prompt_id: 'test-prompt',
-        node_id: '123'
+        node_id: asNodeId('123')
       }
     }
 
@@ -771,20 +774,20 @@ describe('useExecutionStore - executingNode with subgraphs', () => {
       id: 'test-prompt',
       nodes: ['456:789'],
       promptOutput: {
-        '456:789': createPromptNode('Nested Node', 'NestedNode')
+        [asNodeId('456:789')]: createPromptNode('Nested Node', 'NestedNode')
       },
       workflow: createQueuedWorkflow()
     })
     store.activeJobId = 'test-prompt'
 
     store.nodeProgressStates = {
-      '456:789': {
+      [asNodeId('456:789')]: {
         state: 'running',
         value: 0,
         max: 100,
-        display_node_id: '456:789',
+        display_node_id: asNodeId('456:789'),
         prompt_id: 'test-prompt',
-        node_id: '456:789'
+        node_id: asNodeId('456:789')
       }
     }
 
@@ -805,20 +808,20 @@ describe('useExecutionStore - executingNode with subgraphs', () => {
       id: 'test-prompt',
       nodes: ['123'],
       promptOutput: {
-        '123': createPromptNode('Test Node', 'TestNode')
+        [asNodeId('123')]: createPromptNode('Test Node', 'TestNode')
       },
       workflow: createQueuedWorkflow()
     })
     store.activeJobId = 'test-prompt'
 
     store.nodeProgressStates = {
-      '999': {
+      [asNodeId('999')]: {
         state: 'running',
         value: 0,
         max: 100,
-        display_node_id: '999',
+        display_node_id: asNodeId('999'),
         prompt_id: 'test-prompt',
-        node_id: '999'
+        node_id: asNodeId('999')
       }
     }
 
@@ -945,13 +948,13 @@ describe('useExecutionStore - WebSocket event handlers', () => {
       fire('execution_start', { prompt_id: 'job-1', timestamp: 0 })
 
       expect(store.activeJobId).toBe('job-1')
-      expect(store.queuedJobs['job-1']).toEqual({ nodes: {} })
+      expect(store.queuedJobs[asNodeId('job-1')]).toEqual({ nodes: {} })
     })
 
     it('clears transient errors while preserving validation errors', () => {
       const errorStore = useExecutionErrorStore()
       const nodeErrors = {
-        '1': {
+        [asNodeId('1')]: {
           class_type: 'Test',
           dependent_outputs: [],
           errors: [
@@ -967,7 +970,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
       errorStore.lastExecutionError = {
         prompt_id: 'old-job',
         timestamp: 0,
-        node_id: '1',
+        node_id: asNodeId('1'),
         node_type: 'Test',
         executed: [],
         exception_message: 'boom',
@@ -1033,14 +1036,14 @@ describe('useExecutionStore - WebSocket event handlers', () => {
 
       fire('execution_interrupted', {
         prompt_id: 'job-1',
-        node_id: 'n1',
+        node_id: asNodeId('n1'),
         node_type: 't',
         executed: [],
         timestamp: 0
       })
 
       expect(store.activeJobId).toBeNull()
-      expect(store.queuedJobs['job-1']).toBeUndefined()
+      expect(store.queuedJobs[asNodeId('job-1')]).toBeUndefined()
     })
   })
 
@@ -1060,7 +1063,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
         output: {}
       })
 
-      expect(store.activeJob?.nodes['n1']).toBe(true)
+      expect(store.activeJob?.nodes[asNodeId('n1')]).toBe(true)
     })
 
     it('is a no-op when no active job exists', () => {
@@ -1083,7 +1086,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
       fire('execution_success', { prompt_id: 'job-1', timestamp: 0 })
 
       expect(store.activeJobId).toBeNull()
-      expect(store.queuedJobs['job-1']).toBeUndefined()
+      expect(store.queuedJobs[asNodeId('job-1')]).toBeUndefined()
     })
   })
 
@@ -1094,7 +1097,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
         value: 1,
         max: 2,
         prompt_id: 'job-1',
-        node: '1'
+        node: asNodeId('1')
       }
 
       fire('executing', null)
@@ -1150,7 +1153,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
 
       fire('execution_error', {
         prompt_id: 'job-1',
-        node_id: 'n1',
+        node_id: asNodeId('n1'),
         node_type: 'KSampler',
         exception_type: 'RuntimeError',
         exception_message: 'CUDA OOM',
@@ -1159,7 +1162,7 @@ describe('useExecutionStore - WebSocket event handlers', () => {
 
       expect(errorStore.lastExecutionError).toMatchObject({
         prompt_id: 'job-1',
-        node_id: 'n1',
+        node_id: asNodeId('n1'),
         exception_message: 'CUDA OOM'
       })
     })
@@ -1239,18 +1242,23 @@ describe('useExecutionStore - storeJob and workflow path tracking', () => {
       nodes: ['a', 'b'],
       id: 'job-1',
       promptOutput: {
-        a: createPromptNode('Node A', 'NodeA'),
-        b: createPromptNode('Node B', 'NodeB')
+        [asNodeId('a')]: createPromptNode('Node A', 'NodeA'),
+        [asNodeId('b')]: createPromptNode('Node B', 'NodeB')
       },
       workflow
     })
 
-    expect(store.queuedJobs['job-1']?.nodes).toEqual({ a: false, b: false })
-    expect(store.queuedJobs['job-1']?.nodeLookup).toEqual({
+    expect(store.queuedJobs[asNodeId('job-1')]?.nodes).toEqual({
+      a: false,
+      b: false
+    })
+    expect(store.queuedJobs[asNodeId('job-1')]?.nodeLookup).toEqual({
       a: { title: 'Node A', type: 'NodeA' },
       b: { title: 'Node B', type: 'NodeB' }
     })
-    expect(store.queuedJobs['job-1']?.workflow).toStrictEqual(workflow)
+    expect(store.queuedJobs[asNodeId('job-1')]?.workflow).toStrictEqual(
+      workflow
+    )
     expect(store.jobIdToWorkflowId.get('job-1')).toBe('wf-1')
     expect(store.jobIdToSessionWorkflowPath.get('job-1')).toBe(
       '/workflows/foo.json'

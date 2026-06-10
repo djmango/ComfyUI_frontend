@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { asNodeId } from '@/lib/litegraph/src/litegraph'
 import type { MissingModelCandidate } from '@/platform/missingModel/types'
 
 const mockGetNodeByExecutionId = vi.fn()
@@ -123,7 +124,7 @@ function makeCandidate(
 ): MissingModelCandidate {
   return {
     name: 'model.safetensors',
-    nodeId: '1',
+    nodeId: asNodeId('1'),
     nodeType: 'CheckpointLoaderSimple',
     widgetName: 'ckpt_name',
     isAssetSupported: false,
@@ -348,8 +349,11 @@ describe('useMissingModelInteractions', () => {
       const store = useMissingModelStore()
       store.selectedLibraryModel['key1'] = 'new_model.safetensors'
       store.setMissingModels([
-        makeCandidate({ name: 'old_model.safetensors', nodeId: '10' }),
-        makeCandidate({ name: 'old_model.safetensors', nodeId: '20' })
+        makeCandidate({
+          name: 'old_model.safetensors',
+          nodeId: asNodeId('10')
+        }),
+        makeCandidate({ name: 'old_model.safetensors', nodeId: asNodeId('20') })
       ])
 
       const removeSpy = vi.spyOn(store, 'removeMissingModelByNameOnNodes')
@@ -359,8 +363,8 @@ describe('useMissingModelInteractions', () => {
         'key1',
         'old_model.safetensors',
         [
-          { nodeId: '10', widgetName: 'ckpt_name' },
-          { nodeId: '20', widgetName: 'ckpt_name' }
+          { nodeId: asNodeId('10'), widgetName: 'ckpt_name' },
+          { nodeId: asNodeId('20'), widgetName: 'ckpt_name' }
         ],
         null
       )
