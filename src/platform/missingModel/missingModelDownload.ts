@@ -3,19 +3,10 @@ import { isDesktop } from '@/platform/distribution/types'
 import { useElectronDownloadStore } from '@/stores/electronDownloadStore'
 import { useSidebarTabStore } from '@/stores/workspace/sidebarTabStore'
 
-interface ComfyDesktop2Bridge {
-  downloadModel: (
-    url: string,
-    filename: string,
-    directory: string
-  ) => Promise<boolean>
-}
-
-declare global {
-  interface Window {
-    __comfyDesktop2?: ComfyDesktop2Bridge
-    __comfyDesktop2Remote?: boolean
-  }
+interface ComfyDesktop2ModelDownloadBridge {
+  downloadModel: NonNullable<
+    NonNullable<Window['__comfyDesktop2']>['downloadModel']
+  >
 }
 
 const ALLOWED_SOURCES = [
@@ -51,7 +42,7 @@ export interface ModelWithUrl {
 }
 
 async function startDesktop2ModelDownload(
-  bridge: ComfyDesktop2Bridge,
+  bridge: ComfyDesktop2ModelDownloadBridge,
   model: ModelWithUrl
 ): Promise<void> {
   try {
@@ -90,8 +81,12 @@ export function downloadModel(
   paths: Record<string, string[]>
 ): void {
   const desktop2Bridge = window.__comfyDesktop2
-  if (desktop2Bridge?.downloadModel && !window.__comfyDesktop2Remote) {
-    void startDesktop2ModelDownload(desktop2Bridge, model)
+  const desktop2DownloadModel = desktop2Bridge?.downloadModel
+  if (desktop2DownloadModel && !window.__comfyDesktop2Remote) {
+    void startDesktop2ModelDownload(
+      { downloadModel: desktop2DownloadModel },
+      model
+    )
     return
   }
 

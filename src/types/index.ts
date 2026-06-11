@@ -75,6 +75,25 @@ interface AppReadiness {
   appInitialized: boolean
 }
 
+type ComfyDesktop2TelemetryValue = string | number | boolean | null | undefined
+
+interface ComfyDesktop2Bridge {
+  downloadModel?: (
+    url: string,
+    filename: string,
+    directory: string
+  ) => Promise<boolean>
+  Telemetry?: {
+    capture: (
+      event: string,
+      properties?: Record<
+        string,
+        ComfyDesktop2TelemetryValue | ComfyDesktop2TelemetryValue[]
+      >
+    ) => void
+  }
+}
+
 declare global {
   interface Window {
     /** For use by extensions and in the browser console. Where possible, import `app` from '@/scripts/app' instead. */
@@ -88,5 +107,8 @@ declare global {
 
     /** For use in tests to track app initialization state */
     __appReadiness?: AppReadiness
+
+    __comfyDesktop2?: ComfyDesktop2Bridge
+    __comfyDesktop2Remote?: boolean
   }
 }

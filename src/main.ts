@@ -44,6 +44,10 @@ if (isCloud) {
 
   const { initTelemetry } = await import('@/platform/telemetry/initTelemetry')
   await initTelemetry()
+} else if (__DISTRIBUTION__ === 'desktop') {
+  const { initDesktopTelemetry } =
+    await import('@/platform/telemetry/initDesktopTelemetry')
+  initDesktopTelemetry()
 }
 
 const ComfyUIPreset = definePreset(Aura, {
