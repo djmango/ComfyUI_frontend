@@ -4,13 +4,10 @@ import { DesktopTelemetryProvider } from './providers/desktop/DesktopTelemetryPr
 
 const IS_DESKTOP_BUILD = __DISTRIBUTION__ === 'desktop'
 
-let initialized = false
-
 export function initDesktopTelemetry(): void {
-  if (!IS_DESKTOP_BUILD || initialized) return
+  if (!IS_DESKTOP_BUILD) return
 
   const registry = new TelemetryRegistry()
   registry.registerProvider(new DesktopTelemetryProvider())
   setTelemetryRegistry(registry)
-  initialized = true
 }
