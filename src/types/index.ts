@@ -77,6 +77,21 @@ interface AppReadiness {
 
 type ComfyDesktop2TelemetryValue = string | number | boolean | null
 
+/**
+ * Capability bridge exposed by Comfy Desktop 2's preload script
+ * (Comfy-Desktop `src/preload/comfyPreload.ts`) via
+ * `contextBridge.exposeInMainWorld`. Absent in browser/cloud builds and
+ * in Desktop v1; the preload file is the source of truth for this shape.
+ *
+ * Contract:
+ * - Every key is optional. Callers must feature-detect
+ *   (`window.__comfyDesktop2?.X?.y`) and no-op when absent — key
+ *   presence is the capability flag.
+ * - Desktop only makes additive changes. Once a key ships, its
+ *   signature is frozen: released frontends in the wild call it.
+ * - Payloads must be structured-clone-safe (telemetry: primitives and
+ *   primitive arrays only); Desktop drops anything else.
+ */
 export interface ComfyDesktop2Bridge {
   downloadModel?: (
     url: string,
@@ -109,6 +124,7 @@ declare global {
     __appReadiness?: AppReadiness
 
     __comfyDesktop2?: ComfyDesktop2Bridge
+    /** Set by Desktop 2 when the hosted server is remote, so download routing through the local download manager is skipped. */
     __comfyDesktop2Remote?: boolean
   }
 }
