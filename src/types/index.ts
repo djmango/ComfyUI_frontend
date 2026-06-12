@@ -77,7 +77,7 @@ interface AppReadiness {
 
 type ComfyDesktop2TelemetryValue = string | number | boolean | null
 
-interface ComfyDesktop2Bridge {
+export interface ComfyDesktop2Bridge {
   downloadModel?: (
     url: string,
     filename: string,

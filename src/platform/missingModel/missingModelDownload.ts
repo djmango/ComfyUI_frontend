@@ -2,12 +2,7 @@ import { downloadUrlToHfRepoUrl, isCivitaiModelUrl } from '@/utils/formatUtil'
 import { isDesktop } from '@/platform/distribution/types'
 import { useElectronDownloadStore } from '@/stores/electronDownloadStore'
 import { useSidebarTabStore } from '@/stores/workspace/sidebarTabStore'
-
-interface ComfyDesktop2ModelDownloadBridge {
-  downloadModel: NonNullable<
-    NonNullable<Window['__comfyDesktop2']>['downloadModel']
-  >
-}
+import type { ComfyDesktop2Bridge } from '@/types'
 
 const ALLOWED_SOURCES = [
   'https://civitai.com/',
@@ -42,11 +37,11 @@ export interface ModelWithUrl {
 }
 
 async function startDesktop2ModelDownload(
-  bridge: ComfyDesktop2ModelDownloadBridge,
+  downloadModel: NonNullable<ComfyDesktop2Bridge['downloadModel']>,
   model: ModelWithUrl
 ): Promise<void> {
   try {
-    await bridge.downloadModel(model.url, model.name, model.directory)
+    await downloadModel(model.url, model.name, model.directory)
   } catch (error: unknown) {
     console.error('Failed to start Desktop2 model download:', error)
   }
@@ -83,10 +78,7 @@ export function downloadModel(
   const desktop2Bridge = window.__comfyDesktop2
   const desktop2DownloadModel = desktop2Bridge?.downloadModel
   if (desktop2DownloadModel && !window.__comfyDesktop2Remote) {
-    void startDesktop2ModelDownload(
-      { downloadModel: desktop2DownloadModel },
-      model
-    )
+    void startDesktop2ModelDownload(desktop2DownloadModel, model)
     return
   }
 
