@@ -75,7 +75,7 @@ interface AppReadiness {
   appInitialized: boolean
 }
 
-type ComfyDesktop2TelemetryValue = string | number | boolean | null | undefined
+type ComfyDesktop2TelemetryValue = string | number | boolean | null
 
 interface ComfyDesktop2Bridge {
   downloadModel?: (

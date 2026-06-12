@@ -47,7 +47,7 @@ import type {
 import { TelemetryEvents } from '../../types'
 import { normalizeSurveyResponses } from '../../utils/surveyNormalization'
 
-type HostTelemetryPrimitive = string | number | boolean | null | undefined
+type HostTelemetryPrimitive = string | number | boolean | null
 type HostTelemetryProperties = Record<
   string,
   HostTelemetryPrimitive | HostTelemetryPrimitive[]
@@ -58,7 +58,6 @@ function isHostTelemetryPrimitive(
 ): value is HostTelemetryPrimitive {
   return (
     value === null ||
-    value === undefined ||
     typeof value === 'string' ||
     typeof value === 'number' ||
     typeof value === 'boolean'
