@@ -44,7 +44,7 @@ if (isCloud) {
 
   const { initTelemetry } = await import('@/platform/telemetry/initTelemetry')
   await initTelemetry()
-} else if (__DISTRIBUTION__ === 'desktop') {
+} else {
   const { initDesktopTelemetry } =
     await import('@/platform/telemetry/initDesktopTelemetry')
   initDesktopTelemetry()
