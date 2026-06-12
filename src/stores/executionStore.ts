@@ -303,14 +303,16 @@ export const useExecutionStore = defineStore('execution', () => {
     const jobId = e.detail.prompt_id
     const queuedJob = queuedJobs.value[jobId]
     const telemetry = useTelemetry()
-    telemetry?.trackExecutionSuccess({
-      jobId
-    })
-    if (queuedJob?.shareId) {
-      telemetry?.trackSharedWorkflowRun({
-        job_id: jobId,
-        share_id: queuedJob.shareId
+    if (queuedJob) {
+      telemetry?.trackExecutionSuccess({
+        jobId
       })
+      if (queuedJob.shareId) {
+        telemetry?.trackSharedWorkflowRun({
+          job_id: jobId,
+          share_id: queuedJob.shareId
+        })
+      }
     }
     resetExecutionState(jobId)
   }
