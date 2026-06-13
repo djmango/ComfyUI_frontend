@@ -256,13 +256,17 @@ export function groupCandidatesByName(
     if (existing) {
       existing.referencingNodes.push({
         nodeId: c.nodeId,
+        nodeType: c.nodeType,
         widgetName: c.widgetName
       })
     } else {
       map.set(c.name, {
         name: c.name,
         mediaType: c.mediaType,
-        referencingNodes: [{ nodeId: c.nodeId, widgetName: c.widgetName }]
+        representative: c,
+        referencingNodes: [
+          { nodeId: c.nodeId, nodeType: c.nodeType, widgetName: c.widgetName }
+        ]
       })
     }
   }
