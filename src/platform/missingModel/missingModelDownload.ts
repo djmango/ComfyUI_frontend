@@ -1,5 +1,6 @@
 import { downloadUrlToHfRepoUrl, isCivitaiModelUrl } from '@/utils/formatUtil'
 import { isDesktop } from '@/platform/distribution/types'
+import { api } from '@/scripts/api'
 import { useElectronDownloadStore } from '@/stores/electronDownloadStore'
 import { useSidebarTabStore } from '@/stores/workspace/sidebarTabStore'
 
@@ -43,6 +44,29 @@ const WHITE_LISTED_URLS: ReadonlySet<string> = new Set([
 ])
 
 const MODEL_LIBRARY_TAB_ID = 'model-library'
+
+
+async function downloadModelViaServer(model: ModelWithUrl): Promise<void> {
+  const response = await api.fetchApi('/download_model', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: model.url,
+      save_dir: model.directory,
+      filename: model.name
+    })
+  })
+  if (!response.ok) {
+    let message = `Download failed (${response.status})`
+    try {
+      const body = await response.json()
+      if (body?.error) message = body.error
+    } catch {
+      pass
+    }
+    throw new Error(message)
+  }
+}
 
 export interface ModelWithUrl {
   name: string
@@ -96,12 +120,15 @@ export function downloadModel(
   }
 
   if (!isDesktop) {
-    const link = document.createElement('a')
-    link.href = model.url
-    link.download = model.name
-    link.target = '_blank'
-    link.rel = 'noopener noreferrer'
-    link.click()
+    void downloadModelViaServer(model).catch((error: unknown) => {
+      console.error('[missingModelDownload] Server download failed:', error)
+      const link = document.createElement('a')
+      link.href = model.url
+      link.download = model.name
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      link.click()
+    })
     return
   }
 
