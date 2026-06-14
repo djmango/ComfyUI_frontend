@@ -45,7 +45,6 @@ const WHITE_LISTED_URLS: ReadonlySet<string> = new Set([
 
 const MODEL_LIBRARY_TAB_ID = 'model-library'
 
-
 async function downloadModelViaServer(model: ModelWithUrl): Promise<void> {
   const response = await api.fetchApi('/download_model', {
     method: 'POST',
@@ -62,7 +61,7 @@ async function downloadModelViaServer(model: ModelWithUrl): Promise<void> {
       const body = await response.json()
       if (body?.error) message = body.error
     } catch {
-      pass
+      // ignore
     }
     throw new Error(message)
   }
